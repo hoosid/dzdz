@@ -1,53 +1,48 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-const { PrismaClient } = require('@prisma/client');
-const connection = require('./database/config');
-// const mysql = require('mysql');
-const bcrypt = require('bcrypt');
+const { PrismaClient } = require('@prisma/client'); // Importer PrismaClient
+const prisma = new PrismaClient(); // Initialiser PrismaClient
 
-module.exports = connection;
-// var cookieParser = require('cookie-parser');
-// var logger = require('morgan');
-
-
+// Importer les routes
 var usersRouter = require('./routes/users');
 var homepage = require('./routes/homepage');
 var contact = require('./routes/contact');
 var login = require('./routes/login');
 var about = require('./routes/about');
 var admin_crud = require('./routes/admin/admin');
-var etidiant_admin = require('./routes/adminictraction/etudiant')
-var etidiant_prof = require('./routes/adminictraction/prof')
-var prof = require('./routes/prof/add_cour')
-var coures = require('./routes/cours')
-var update = require('./routes/adminictraction/update_prof_etudiant')
+var etidiant_admin = require('./routes/adminictraction/etudiant');
+var etidiant_prof = require('./routes/adminictraction/prof');
+var prof = require('./routes/prof/add_cour');
+var coures = require('./routes/cours');
+var update = require('./routes/adminictraction/update_prof_etudiant');
+
+// Initialiser l'application Express
 var app = express();
 
-// view engine setup
+// Configuration du moteur de vue
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-
-// app.use(logger('dev'));
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/',  contact );
-app.use('/',  homepage );
-app.use('/',  login );
-app.use('/',  about );
-app.use('/',  admin_crud );
-app.use('/',  etidiant_admin );
-app.use('/',  etidiant_prof );
-app.use('/',  prof );
-app.use('/',  coures );
-app.use('/',  update );
+// Définir les routes
+app.use('/', contact);
+app.use('/', homepage);
+app.use('/', login);
+app.use('/', about);
+app.use('/', admin_crud);
+app.use('/', etidiant_admin);
+app.use('/', etidiant_prof);
+app.use('/', prof);
+app.use('/', coures);
+app.use('/', update);
 app.use('/users', usersRouter);
 
-
+// Route pour la page d'accueil avec Prisma
 app.get('/home', async (req, res) => {
   try {
       const admin = await prisma.admin.findMany(); 
@@ -58,24 +53,21 @@ app.get('/home', async (req, res) => {
   }
 });
 
-
-
-// catch 404 and forward to error handler
+// Gestion des erreurs 404
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Gestion des erreurs générales
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
 
-app.listen('10000',()=>{
-  console.log("all is good");
-})
+// Démarrer le serveur
+app.listen(10000, () => {
+  console.log("Server is running on port 10000");
+});
+
