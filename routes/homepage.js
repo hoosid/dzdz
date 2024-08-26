@@ -11,7 +11,7 @@ const upload = multer({ storage: storage });
 /* GET home page. */
 
 
-router.get('/home', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
       const admin = await prisma.admin.findMany(); 
       res.render('home', { admin: admin });
