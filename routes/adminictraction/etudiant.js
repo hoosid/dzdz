@@ -12,47 +12,44 @@ const upload = multer({ storage: storage });
 router.get('/etudiant_crud', async (req, res) => {
     try {
         const user = req.query.user ? decodeURIComponent(req.query.user) : null;
+        const niveau = req.query.niveau ? decodeURIComponent(req.query.niveau) : null;
         const searchQuery = req.query.search ? req.query.search.trim() : '';
+
+        // Fetching additional data
         const admin = await prisma.admin.findMany();
         const prof = await prisma.prof.findMany();
 
-        const dateDeRecherche = req.query.date ? new Date(req.query.date) : new Date(); // Date spécifique ou date actuelle par défaut
+        // Query to fetch etudiants based on search query
+        const etudiants = await prisma.etudiant.findMany({
+            where: {
+                OR: [
+                    {
+                        user: {
+                            contains: searchQuery,
+                        },
+                        niveau: {
+                            contains: searchQuery,
+                        }
+                    }
+                ]
+            }
+        });
 
-    const etudiants = await prisma.etudiant.findMany({
-        where: {
-            OR: [
-                {
-                    user: {
-                        contains: searchQuery,
-                    }
-                },
-                {
-                    add_etudiant: {
-                        gte: dateDeRecherche, // Rechercher les étudiants ajoutés à partir de cette date
-                    }
-                },
-                {
-                    delete_etudiant: {
-                        lte: dateDeRecherche, // Rechercher les étudiants supprimés avant cette date
-                    }
-                },
-                {
-                    expiration_date: {
-                        gt: dateDeRecherche, // Rechercher les étudiants dont la date d'expiration est après cette date
-                    }
-                }
-            ]
-        }
-    });
-        res.render('dachborde/adminictraction/etudiant', { user, prof: prof, etudiants: etudiants, admin: admin });
+        res.render('dachborde/adminictraction/etudiant', {
+            user, 
+            prof, 
+            etudiants, 
+            admin
+        });
     } catch (error) {
-        console.error('Erreur lors de la récupération des professeurs :', error);
-        res.status(500).send('Une erreur s\'est produite lors de la récupération des professeurs');
+        console.error('Erreur lors de la récupération des étudiants :', error);
+        res.status(500).send('Une erreur s\'est produite lors de la récupération des étudiants');
     }
 });
 
+
 router.post('/etudiant_crud', upload.single('image'), async (req, res) => {
-    const { user, email, phone, password, admin } = req.body;
+    const { user, email, phone, password, admin ,niveau} = req.body;
 
     try {
         const currentDate = new Date();
@@ -72,10 +69,11 @@ router.post('/etudiant_crud', upload.single('image'), async (req, res) => {
             email: email,
             phone: phoneInt,
             password: password,
+            niveau:niveau,
             admin: admin,
             expiration_date: expirationDate
         };
-        
+
 
         await prisma.etudiant.create({
             data: etudiant_Data
@@ -95,16 +93,18 @@ router.post('/etudiant_crud', upload.single('image'), async (req, res) => {
 
 
 // delete
-router.get('/etudiant_crud/:password', async (req, res) => {
+ router.get('/etudiant_crud/:password', async (req, res) => {
     const pass = req.params.password; // Récupère le mot de passe depuis les paramètres de l'URL
     const user = req.query.user ? decodeURIComponent(req.query.user) : null;
     const email = req.query.email ? decodeURIComponent(req.query.email) : null;
     const phone = req.query.phone ? parseInt(req.query.phone) : null; // Conversion en entier si nécessaire
     const jam3iya = req.query.jam3iya ? decodeURIComponent(req.query.jam3iya) : null;
+    const niveau = req.query. niveau  ? decodeURIComponent(req.query. niveau ) : null;
 
     try {
 
         const etudiant = await prisma.etudiant.findMany();
+
 
         let reponse;
         for (const q of etudiant) {
@@ -114,11 +114,13 @@ router.get('/etudiant_crud/:password', async (req, res) => {
             }
         }
 
+
         const etudiant_Data_delete = {
             user: reponse,
             email: email,
             phone: phone,
             password: pass,
+            niveau : niveau,
             admin: jam3iya
         };
 
@@ -136,6 +138,25 @@ router.get('/etudiant_crud/:password', async (req, res) => {
         await prisma.delete_etudiant.create({
             data: etudiant_Data_delete
         });
+        // ---------------------------------------------------------------------------
+
+        const currentDate = new Date();
+
+        for (const q of etudiant) {
+            if (q.expiration_date.getTime() === currentDate.getTime()) {
+                try {
+                    await prisma.etudiant.deleteMany({
+                        where: {
+                            password: q.password
+                        }
+                    });
+                } catch (error) {
+                    console.error(`Erreur lors de la suppression de l'étudiant avec le mot de passe ${q.password}:`, error);
+                    // Gérer l'erreur selon vos besoins
+                }
+            }
+        }
+
 
         // Redirection vers la page d'administration avec le nom d'admin encodé
         res.redirect("/etudiant_crud?user=" + encodeURIComponent(user));
