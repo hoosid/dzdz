@@ -241,7 +241,12 @@ router.get('/admin_etudiant/:password', async (req, res) => {
   }
 });
 
-
+/**
+ * @rout localhost:3000/admin_update_jm3iya
+ * @method get 
+ * @description update jam3iya
+ * @access public
+ */
 // update . jm3iya
 
 router.get('/admin_update_jm3iya', async (req, res) => {
