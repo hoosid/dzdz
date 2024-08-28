@@ -108,7 +108,7 @@
         >
           <div class="container-fluid">
             <div class="navbar-wrapper">
-              <a class="navbar-brand" href="javascript:;">LearnEd</a>
+              <a class="navbar-brand" href="/">LearnEd</a>
             </div>
             <button
               class="navbar-toggler"
@@ -159,6 +159,13 @@
                     <h3 class="card-title">
                         ارسل لنا رسالة
                         <a href="/contact" style="color: red;">اضغط هنا</a>
+                      
+                    </h3>
+
+                    <h3 class="card-title">
+                        للخروج
+                        <a href="/home" style="color: red;">اضغط هنا</a>
+                      
                     </h3>
                   </div>
 
@@ -228,32 +235,7 @@
                   </div>
                 </div>
               </div>
-              <!-- <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="custom-icon-card card card-stats">
-                  <div class="card-header card-header-info card-header-icon">
-                    <div class="card-icon">
-                      <a href="/contact"><img src="/images/images/icon/contact-mail.png" alt="building" width="35px" /></a>
-                    </div>
-                    <p class="card-category" style="color: #000;">Total contact</p>
-                    <h3 class="card-title">d</h3>
-                  </div>
-                  <div class="card-body">
-                    <div class="stats">
-                      <div class="progress" style="height: 4px">
-                        <div
-                          class="progress-bar bg-info"
-                          role="progressbar"
-                          style="width: 65%"
-                          aria-valuenow="65"
-                          aria-valuemin="0"
-                          aria-valuemax="100"
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> -->
+            
           
         
             <div class="row">
@@ -267,10 +249,16 @@
                         ><span>كل طلبة مسجلين</span></a
                       >
                       <form action="/etudiant_crud" method="get">
-                        <input type="hidden" name="user" value="<%= user %>" >
+                        <input type="hidden" name="user" value="<%= user %>">
+                        <% etudiants.forEach((add) => { %>
+                            <% if (add.user === user) { %>
+                                <input type="hidden" name="niveau" value="<%= add.niveau %>">
+                            <% } %>
+                        <% }) %>
                         <input type="search" name="search" style="height: 50px; width: 90%; border-radius: 10px;" placeholder="...ابحث">
                         <button type="submit" style="display: none;">Rechercher</button>
                     </form>
+                    
                     </div>
                     <div class="float-right">
                       <div class="user-profile-nav">
@@ -321,6 +309,12 @@
                                                     </div>
                                                     <input type="password" name="password" class="form-control" aria-label="Password" aria-describedby="basic-addon4" placeholder="Password" required>
                                                 </div>
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text" id="basic-addon4">niveau</span>
+                                                    </div>
+                                                    <input type="text" name="niveau" class="form-control" aria-label="Password" aria-describedby="basic-addon4" placeholder="niveau" required>
+                                                </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">خروج</button>
                                                     <button type="submit" class="btn btn-primary">اضافة</button>
@@ -352,6 +346,7 @@
                             <th scope="col">email </th>
                             <th scope="col"> phone</th>
                             <th scope="col">password</th>
+                            <th scope="col">niveau</th>
                             <th scope="col"> add_etudiant</th>
                             <th scope="col">  update_etudiant</th>
                             <th scope="col">  expiration_date</th>
@@ -369,13 +364,14 @@
                               <td><%=add.email %></td>
                               <td><%=add.phone  %></td>
                               <td><%= add.password %></td>
+                              <td><%= add.niveau %></td>
                               <td><%=add.add_etudiant%></td>
                               <td><%=add.delete_etudiant%></td>
                               <td><%=add.expiration_date%></td>
                               <td>
                                 <div>
                                   <td><button class="btn btn-primary"><a href="/update_etudiant?user=<%= add.user %>&email=<%= add.email %>&phone=<%= add.phone %>&password=<%= add.password %>&jam3iya=<%= user %>" style="color:#fff ;">تعديل</a></button></td>
-                                 <td><button class="btn btn-primary" style="background-color: rgb(221, 27, 27);"><a href="/etudiant_crud/<%= add.password %>?user=<%= user %>&email=<%=add.email %>&phone=<%=add.phone %>&jam3iya=<%= user %>" style="color:#fff ;">حدف</a></button></td>
+                                 <td><button class="btn btn-primary" style="background-color: rgb(221, 27, 27);"><a href="/etudiant_crud/<%= add.password %>?user=<%= user %>&email=<%=add.email %>&phone=<%=add.phone %>&jam3iya=<%= user %>&niveau=<%= add.niveau %>" style="color:#fff ;">حدف</a></button></td>
                                 </div>
                               </td>
                             </tr>
