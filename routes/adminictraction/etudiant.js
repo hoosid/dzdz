@@ -27,9 +27,9 @@ router.get('/etudiant_crud', async (req, res) => {
                         user: {
                             contains: searchQuery,
                         },
-                        niveau: {
-                            contains: searchQuery,
-                        }
+                        // niveau: {
+                        //     contains: searchQuery,
+                        // }
                     }
                 ]
             }
